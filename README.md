@@ -24,7 +24,7 @@ graph TD;
 
     subgraph "Data and Services"
         ImageRecognition --> DB["<b>MySQL Database</b><br/>貨幣資料"];
-        ExchangeRate --> ExternalAPI["{{<br/><b>第三方匯率 API</b>}}"];
+        ExchangeRate --> ExternalAPI["<b>第三方匯率 API</b><br/>"];
         QuizAndCollection --> UserDB["<b>MySQL Database</b><br/>使用者資料"];
     end
 
