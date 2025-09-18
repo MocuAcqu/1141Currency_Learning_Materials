@@ -9,7 +9,7 @@
 
 本專案採用前後端分離的 Client-Server 架構。前端 App 負責使用者介面與互動，後端伺服器則負責核心業務邏輯、資料處理與 AI 辨識功能。
 
-### | 架構圖 (Architecture Diagram)
+### | 後端服務架構圖 (Architecture Diagram)
 
 ```mermaid
 graph TD;
@@ -41,6 +41,20 @@ graph TD;
     style ImageRecognition fill:#222,stroke:#555,color:#fff
     style ExchangeRate fill:#222,stroke:#555,color:#fff
     style QuizAndCollection fill:#222,stroke:#555,color:#fff
+```
+
+### | 前端服務架構
+```
+app/
+├── (tabs)/                # 這個資料夾內的頁面會共享底部導航欄
+│   ├── _layout.tsx        # 這裡是設定底部導航欄的地方！
+│   ├── index.tsx          # 首頁 (第一個 Tab)
+│   ├── recognize.tsx      # 貨幣辨識頁 (第二個 Tab)
+│   ├── converter.tsx      # 匯率換算頁 (第三個 Tab)
+│   └── collection.tsx     # 我的收藏頁 (第四個 Tab)
+│
+├── quiz.tsx               # 後測測驗頁 (獨立頁面)
+└── _layout.tsx            # 全局的佈局設定
 ```
 
 ### | 元件說明 (Component Descriptions)
