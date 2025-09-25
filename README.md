@@ -50,7 +50,7 @@ app/
 │   ├── _layout.tsx        # 這裡是設定底部導航欄的地方！
 │   ├── index.tsx          # 首頁 (第一個 Tab)
 │   ├── recognize.tsx      # 貨幣辨識頁 (第二個 Tab)
-│   ├── converter.tsx      # 匯率換算頁 (第三個 Tab)
+│   ├── converter.tsx      # 貨幣換算頁 (第三個 Tab)
 │   └── collection.tsx     # 我的收藏頁 (第四個 Tab)
 │
 ├── quiz.tsx               # 後測測驗頁 (獨立頁面)
