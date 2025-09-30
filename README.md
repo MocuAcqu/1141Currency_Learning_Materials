@@ -90,7 +90,7 @@ app/
 ### | 影像辨識 (Image Recognition)
 本功能將React Native (Expo) 中整合 [Microsoft BankNote-Net](https://github.com/microsoft/banknote-net)模型，完成**紙鈔幣別影樣辨識**。使用者可以拍照或從相簿選擇一張紙鈔圖片後，經過模型辨識出它是哪一國的貨幣。
 
-p.s: Microsoft BankNote-Net Encoder:
+p.s: Microsoft BankNote-Net Encoder:\n
 這個Open source 提供了一個已經訓練好的貨幣辨識模型，其中涵蓋了 17 種不同國家的貨幣、共 112 種面額。
 我們直接利用這些 embedding 特徵來建立分類器來辨識新影像中的貨幣種類與面額，所以不需要重新收集資料或重新訓練模型。
 
