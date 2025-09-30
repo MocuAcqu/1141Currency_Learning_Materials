@@ -88,7 +88,7 @@ app/
     *   **第三方匯率 API:** 一個外部的網路服務，提供即時、準確的全球貨幣匯率數據。後端伺服器會定時或按需向其請求資料。
     
 ### | 影像辨識 (Image Recognition)
-本功能將React Native (Expo) 中整合 [Microsoft BankNote-Net](https://github.com/microsoft/banknote-net)模型，完成**紙鈔幣別影樣辨識**。使用者可以拍照或從相簿選擇一張紙鈔圖片後，經過模型辨識出它是哪一國的貨幣。
+本功能將React Native (Expo) 中整合 [Microsoft BankNote-Net](https://github.com/microsoft/banknote-net)模型，完成**紙鈔幣別影像辨識**。使用者可以拍照或從相簿選擇一張紙鈔圖片後，經過模型辨識出它是哪一國的貨幣。
 
 p.s: Microsoft BankNote-Net Encoder:
 
