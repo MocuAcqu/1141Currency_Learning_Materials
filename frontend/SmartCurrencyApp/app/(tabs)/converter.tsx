@@ -1,9 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Modal, Button } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Modal, Button, FlatList, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Picker } from '@react-native-picker/picker';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useRates } from '../../contexts/RatesContext';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const { height } = Dimensions.get('window');
 
 export default function ConverterScreen() {
   const { ratesData, loading, error } = useRates();
@@ -12,6 +15,7 @@ export default function ConverterScreen() {
   const [fromCurrency, setFromCurrency] = useState('TWD');
   const [toCurrency, setToCurrency] = useState('USD');
   const [modalVisible, setModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { convertedAmount, calculationRate } = useMemo(() => {
     if (!ratesData) return { convertedAmount: 0, calculationRate: 0 };
@@ -29,6 +33,18 @@ export default function ConverterScreen() {
     setFromCurrency(toCurrency);
     setToCurrency(fromCurrency);
   };
+  
+  const filteredRates = useMemo(() => {
+    if (!ratesData) return [];
+    const allRates = Object.entries(ratesData.rates);
+    if (!searchQuery) {
+      return allRates;
+    }
+    return allRates.filter(([currency]) => 
+      currency.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [ratesData, searchQuery]);
+
 
   if (loading) return <View style={styles.center}><Text>載入匯率資料中...</Text></View>;
   if (error) return <View style={styles.center}><Text style={styles.errorText}>錯誤: {error}</Text></View>;
@@ -36,128 +52,129 @@ export default function ConverterScreen() {
   const currencyOptions = ratesData ? Object.keys(ratesData.rates).sort() : [];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>貨幣換算</Text> {/* 修改 #1: 標題更簡潔 */}
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <LinearGradient colors={['#15505aff', '#ecececff']} style={StyleSheet.absoluteFill} />
 
-      {/* 來源貨幣區塊 */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>金額</Text>
-        <TextInput
-          style={styles.input}
-          value={amount}
-          onChangeText={setAmount}
-          keyboardType="numeric"
-          placeholder="輸入金額"
-        />
-        <Picker
-          selectedValue={fromCurrency}
-          style={styles.picker}
-          onValueChange={(itemValue) => setFromCurrency(itemValue)}
-        >
-          {currencyOptions.map(currency => (
-            <Picker.Item key={currency} label={currency} value={currency} />
-          ))}
-        </Picker>
+      <View style={styles.converterContainer}>
+        <View style={styles.card}>
+          <Text style={styles.cardLabel}>您支付</Text>
+          <View style={styles.cardBody}>
+            <TextInput
+              style={styles.input}
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="numeric"
+            />
+            <View style={styles.pickerContainer}>
+              <Picker selectedValue={fromCurrency} onValueChange={(item) => setFromCurrency(item)}>
+                {currencyOptions.map(c => <Picker.Item key={c} label={c} value={c} />)}
+              </Picker>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.swapButtonContainer}>
+          <TouchableOpacity onPress={handleSwapCurrencies} style={styles.swapButton}>
+            <FontAwesome5 name="exchange-alt" size={20} color="white" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardLabel}>您收到</Text>
+          <View style={styles.cardBody}>
+            <Text style={styles.resultText}>{convertedAmount.toFixed(2)}</Text>
+            <View style={styles.pickerContainer}>
+              <Picker selectedValue={toCurrency} onValueChange={(item) => setToCurrency(item)}>
+                {currencyOptions.map(c => <Picker.Item key={c} label={c} value={c} />)}
+              </Picker>
+            </View>
+          </View>
+        </View>
       </View>
 
-      {/* 交換按鈕 */}
-      <View style={styles.swapContainer}>
-        <TouchableOpacity onPress={handleSwapCurrencies} style={styles.swapButton}>
-          <FontAwesome5 name="exchange-alt" size={24} color="#007AFF" />
-        </TouchableOpacity>
-      </View>
-
-      {/* 目標貨幣區塊 */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>等於</Text>
-        <Text style={styles.resultText}>{convertedAmount.toFixed(4)}</Text>
-        <Picker
-          selectedValue={toCurrency}
-          style={styles.picker}
-          onValueChange={(itemValue) => setToCurrency(itemValue)}
-        >
-          {currencyOptions.map(currency => (
-            <Picker.Item key={currency} label={currency} value={currency} />
-          ))}
-        </Picker>
-      </View>
-
-      {/* --- 新增：顯示當前選擇的兩種貨幣之間的即時匯率 --- */}
-      <View style={styles.rateDisplayBox}>
-        <Text style={styles.rateDisplayText}>
-          即時匯率: 1 {fromCurrency} = {calculationRate.toFixed(6)} {toCurrency}
-        </Text>
-      </View>
-
-      {/* --- 修改 #2: 讓換算過程的說明更清楚 --- */}
-      <View style={styles.infoBox}>
-        <Text style={styles.infoTitle}>詳細計算</Text>
-        <Text style={styles.infoText}>
-          {amount || 0} {fromCurrency} × {calculationRate.toFixed(6)}
-        </Text>
-        <Text style={styles.infoResult}>
-          = {convertedAmount.toFixed(4)} {toCurrency}
-        </Text>
-      </View>
+      <Text style={styles.rateDisplayText}>
+        1 {fromCurrency} = {calculationRate.toFixed(6)} {toCurrency}
+      </Text>
       
-      {/* 提示按鈕 */}
+      <View style={styles.converterContainer}>
+        <View style={styles.card}>
+          <Text style={styles.infoTitle}>詳細計算過程</Text>
+          <Text style={styles.infoText}>
+            {amount || 0} {fromCurrency} × {calculationRate.toFixed(6)}
+          </Text>
+          <Text style={styles.infoResult}>
+            = {convertedAmount.toFixed(4)} {toCurrency}
+          </Text>
+        </View>
+      </View>
+
       <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.hintButton}>
-        <Text style={styles.hintButtonText}>匯率換算方法</Text>
+        <FontAwesome5 name="info-circle" size={16} color="white" />
+        <Text style={styles.hintButtonText}> 查詢即時匯率</Text>
       </TouchableOpacity>
 
-      {/* 提示 Modal (保持不變) */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      {/* 全新的 Modal */}
+      <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <View style={styles.modalContainer}>
           <View style={styles.modalView}>
-            <Text style={styles.modalTitle}>匯率換算辦法</Text>
-            <Text style={styles.modalText}>
-              本工具的匯率資料皆以基準貨幣 (TWD) 為參考。
-              {'\n\n'}
-              當您從 A 貨幣換算到 B 貨幣時，計算過程如下：
-              {'\n'}
-              1. 找出 1 A 貨幣等於多少 TWD。
-              {'\n'}
-              2. 找出 1 B 貨幣等於多少 TWD。
-              {'\n'}
-              3. 最終匯率 = (B 的 TWD 價值) / (A 的 TWD 價值)。
-            </Text>
-            <Button title="關閉" onPress={() => setModalVisible(false)} />
+            <Text style={styles.modalTitle}>即時匯率查詢 (基準: {ratesData?.base})</Text>
+            <TextInput
+              style={styles.searchBar}
+              placeholder="搜尋貨幣 (例如 USD)"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+            <FlatList
+              data={filteredRates}
+              keyExtractor={item => item[0]}
+              renderItem={({ item }) => (
+                <View style={styles.rateItem}>
+                  <Text style={styles.currencyName}>{item[0]}</Text>
+                  <Text style={styles.currencyRate}>{item[1]}</Text>
+                </View>
+              )}
+              style={styles.rateList}
+            />
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>關閉</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
-
     </SafeAreaView>
   );
 }
 
-// --- 修改 #3: 調整樣式表以適應新介面 ---
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 20, backgroundColor: '#f5f5f5' },
+    container: { flex: 1, paddingTop: 20 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     errorText: { color: 'red', fontSize: 16 },
-    title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: '#333' },
-    inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'white', borderRadius: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2, elevation: 2 },
-    label: { fontSize: 18, fontWeight: '500', width: 60, textAlign: 'center' },
-    input: { flex: 1, height: 60, fontSize: 22, paddingHorizontal: 10 },
-    resultText: { flex: 1, height: 60, fontSize: 22, paddingHorizontal: 10, textAlignVertical: 'center', fontWeight: 'bold', color: '#007AFF' },
-    picker: { width: 120, height: 60 },
-    swapContainer: { height: 40, justifyContent: 'center', alignItems: 'center' },
-    swapButton: { padding: 5 },
-    rateDisplayBox: { alignItems: 'center', marginVertical: 15},
-    rateDisplayText: { fontSize: 13, color: '#555', fontStyle: 'italic' },
-    infoBox: { marginTop: 10, padding: 15, backgroundColor: '#e9f5ff', borderRadius: 10 },
-    infoTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: '#005f9e' },
-    infoText: { fontSize: 14, color: '#333', lineHeight: 20, textAlign: 'center' },
-    infoResult: { fontSize: 16, color: '#333', lineHeight: 22, textAlign: 'center', fontWeight: 'bold' },
-    hintButton: { marginTop: 'auto', backgroundColor: '#007AFF', padding: 15, borderRadius: 10, alignItems: 'center' },
+    converterContainer: { paddingHorizontal: 20, marginTop: 24},
+    card: { backgroundColor: 'white', borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 6 },
+    cardLabel: { fontSize: 16, color: '#888', marginBottom: 14 },
+    cardBody: { flexDirection: 'row', alignItems: 'center' },
+    input: { flex: 1, fontSize: 36, fontWeight: '600', color: '#333' },
+    resultText: { flex: 1, fontSize: 36, fontWeight: 'bold', color: '#20b9b2ff' },
+    pickerContainer: { width: 120, height: 50, justifyContent: 'center', backgroundColor: '#f0f0f0', borderRadius: 10 },
+    swapButtonContainer: { alignItems: 'flex-start', marginVertical: -15, zIndex: 1, paddingLeft: 20 },
+    swapButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#149696ff', justifyContent: 'center', alignItems: 'center', transform: [{ rotate: '90deg' }], shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 4 },
+    rateDisplayText: { fontSize: 14, color: '#555', textAlign: 'center', marginTop: 14, marginBottom: 5 },
+
+    infoTitle: { fontSize: 14, fontWeight: 'bold', marginBottom: 8, color: '#808080ff', textAlign: 'center' },
+    infoText: { fontSize: 10, color: '#808080ff', lineHeight: 14, marginBottom: 4, textAlign: 'center' },
+    infoResult: { fontSize: 12, color: '#666666ff', lineHeight: 14, textAlign: 'center', fontWeight: 'bold' },
+
+    hintButton: { flexDirection: 'row', margin: 20, backgroundColor: '#26a69a', padding: 15, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
     hintButtonText: { color: 'white', fontSize: 16, fontWeight: 'bold' },
-    modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-    modalView: { margin: 20, backgroundColor: 'white', borderRadius: 20, padding: 35, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 5 },
+    
+    modalContainer: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' },
+    modalView: { height: height * 0.75, backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, alignItems: 'center' },
     modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 15 },
-    modalText: { marginBottom: 15, textAlign: 'center', lineHeight: 22 },
+    searchBar: { width: '100%', height: 40, backgroundColor: '#f0f0f0', borderRadius: 10, paddingHorizontal: 15, marginBottom: 10 },
+    rateList: { width: '100%' },
+    rateItem: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#eee' },
+    currencyName: { fontSize: 16, fontWeight: '500' },
+    currencyRate: { fontSize: 16, color: '#333' },
+    closeButton: { marginTop: 15, backgroundColor: '#007AFF', paddingVertical: 10, paddingHorizontal: 30, borderRadius: 10 },
+    closeButtonText: { color: 'white', fontSize: 16 },
 });
