@@ -50,7 +50,7 @@ app/
 │   ├── _layout.tsx        # 這裡是設定底部導航欄的地方！
 │   ├── index.tsx          # 首頁 (第一個 Tab)
 │   ├── recognize.tsx      # 貨幣辨識頁 (第二個 Tab)
-│   ├── converter.tsx      # 匯率換算頁 (第三個 Tab)
+│   ├── converter.tsx      # 貨幣換算頁 (第三個 Tab)
 │   └── collection.tsx     # 我的收藏頁 (第四個 Tab)
 │
 ├── quiz.tsx               # 後測測驗頁 (獨立頁面)
@@ -74,7 +74,7 @@ app/
     *   **職責:**
         1.  **API Gateway:** 提供一組 RESTful API 接口，供前端 App 呼叫。
         2.  **影像辨識服務:** 接收前端上傳的貨幣圖片，呼叫 AI 模型進行辨識，並回傳辨識結果。
-        3.  **匯率換算服務:** 接收前端的換算請求，呼叫第三方 API 獲取即時匯率，並執行計算。
+        3.  **[匯率換算服務](https://app.exchangerate-api.com/dashboard):** 接收前端的換算請求，呼叫第三方 API 獲取即時匯率，並執行計算。
         4.  **測驗與收藏服務:** 管理使用者的測驗邏輯、計分、虛擬集幣冊與成就系統的資料存取。
 
 *   **Database (MySQL):**
@@ -86,3 +86,23 @@ app/
 
 *   **External Services:**
     *   **第三方匯率 API:** 一個外部的網路服務，提供即時、準確的全球貨幣匯率數據。後端伺服器會定時或按需向其請求資料。
+    
+### | 影像辨識 (Image Recognition)
+本功能將React Native (Expo) 中整合 [Microsoft BankNote-Net](https://github.com/microsoft/banknote-net)模型，完成**紙鈔幣別影像辨識**。使用者可以拍照或從相簿選擇一張紙鈔圖片後，經過模型辨識出它是哪一國的貨幣。
+
+p.s: Microsoft BankNote-Net Encoder:
+
+這個Open source 提供了一個已經訓練好的貨幣辨識模型，其中涵蓋了 17 種不同國家的貨幣、共 112 種面額。
+我們直接利用這些 embedding 特徵來建立分類器來辨識新影像中的貨幣種類與面額，所以不需要重新收集資料或重新訓練模型。
+
+* 功能
+    * 拍照或選擇紙鈔照片
+    * 圖片自動裁剪、縮放、正規化
+    * 使用 BankNote-Net encoder 標出紙鈔特徵
+    * 使用分類模型判斷紙鈔所屬國別
+    * 輸出結果
+ 
+* Part 1. Python 端：模型轉換
+  .h5 (Keras 格式)→ model.json + .bin ( TensorFlow.js )
+* Part 2. React Native 端：App 使用
+  * 使用 JavaScript (React Native) 撰寫程式碼，載入 model.json + .bin 並執行推論
