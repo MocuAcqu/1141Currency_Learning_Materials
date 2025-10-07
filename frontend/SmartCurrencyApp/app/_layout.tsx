@@ -1,15 +1,60 @@
-import { Stack } from 'expo-router';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Stack, useRouter, useSegments } from 'expo-router';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
+import { useEffect } from 'react';
+import { RatesProvider } from '../contexts/RatesContext';
+import { View, ActivityIndicator } from 'react-native';
+
+const InitialLayout = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoading) return; 
+
+    //const inAuthGroup = segments[0] === '(auth)';
+    const inAppGroup = segments[0] === '(tabs)';
+
+    if (isAuthenticated && !inAppGroup) {
+      // 如果已登入，但不在主 App 區域，導向到主頁
+      router.replace('/(tabs)');
+    } else if (!isAuthenticated && inAppGroup) {
+      // 如果未登入，但嘗試訪問主 App 區域，導向到登入頁
+      router.replace('/login');
+    }
+
+  }, [isAuthenticated, isLoading, segments]);
+  
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="login" options={{
+          // 在登入页，我们可以给它一个标题
+          headerShown: true,
+          title: "登入"
+      }}/>
+      <Stack.Screen name="register" options={{
+          headerShown: true,
+          title: "建立帳號"
+      }}/>
+    </Stack>
+  );
+};
 
 export default function RootLayout() {
   return (
-    // 用 SafeAreaProvider 包裹你的整個 App
-    <SafeAreaProvider>
-      <Stack>
-        {/* 定義你的主要畫面路由 */}
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="quiz" options={{ title: '隨堂測驗' }} />
-      </Stack>
-    </SafeAreaProvider>
+    <AuthProvider>
+      <RatesProvider>
+        <InitialLayout />
+      </RatesProvider>
+    </AuthProvider>
   );
 }

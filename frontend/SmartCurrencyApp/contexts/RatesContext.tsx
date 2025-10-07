@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 
-// 記得換成你電腦的區域網路 IP
 const API_URL = 'http://172.30.71.74:5000';
 
 interface RatesData {
