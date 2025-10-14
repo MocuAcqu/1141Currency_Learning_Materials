@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, Image, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Link } from 'expo-router';
 
-const API_URL = 'http://172.30.71.74:5000';
+const API_URL = 'http://192.168.0.160:5000';
 
 const currencyImages: { [key: string]: any } = {
   'twd.png': require('../../assets/currency_images/twd.png'),
@@ -22,7 +23,7 @@ interface Currency {
 
 // --- 模擬的使用者收藏狀態 ---
 // TODO: 未來這份資料應該從後端 API 獲取
-const userCollectedCurrencies = new Set(['TWD', 'JPY']); // 假設使用者已收集 TWD 和 JPY
+const userCollectedCurrencies = new Set(['TWD']); // 假設使用者已收集 TWD 和 JPY
 
 export default function CollectionScreen() {
   const [currencies, setCurrencies] = useState<Currency[]>([]);
@@ -62,7 +63,8 @@ export default function CollectionScreen() {
           const isCollected = userCollectedCurrencies.has(item.currency_code);
 
           return (
-            <View style={styles.card}>
+            <Link href={`/currencies/${item.currency_code}`} asChild>
+              <TouchableOpacity style={styles.card}>
               <Image source={currencyImages[item.image_url]} style={styles.image} />
               <View style={styles.info}>
                 <Text style={styles.name}>{item.name_zh} ({item.currency_code})</Text>
@@ -71,7 +73,8 @@ export default function CollectionScreen() {
               {isCollected && (
                 <Image source={collectedStamp} style={styles.stamp} />
               )}
-            </View>
+              </TouchableOpacity>
+            </Link>
           );
         }}
       />

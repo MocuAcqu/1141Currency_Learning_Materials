@@ -163,7 +163,7 @@ def get_all_currencies():
         conn = db_pool.get_connection()
         cursor = conn.cursor(dictionary=True)
         
-        query = "SELECT id, currency_code, name_zh, country_zh, symbol, image_url FROM currencies ORDER BY currency_code ASC"
+        query = "SELECT id, currency_code, name_zh, country_zh, country_en, symbol, image_url FROM currencies ORDER BY currency_code ASC"
         cursor.execute(query)
         currencies = cursor.fetchall()
         

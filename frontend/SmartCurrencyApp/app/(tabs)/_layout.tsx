@@ -62,6 +62,13 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => <FontAwesome5 name="book-open" size={24} color={color} />,
           }}
         />
+        <Tabs.Screen
+          name="currencies/[code]" 
+          options={{
+            title: "貨幣詳情",
+            href: null,
+          }}
+        />
       </Tabs>
     </RatesProvider>
     

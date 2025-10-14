@@ -37,7 +37,6 @@ const InitialLayout = () => {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="login" options={{
-          // 在登入页，我们可以给它一个标题
           headerShown: true,
           title: "登入"
       }}/>

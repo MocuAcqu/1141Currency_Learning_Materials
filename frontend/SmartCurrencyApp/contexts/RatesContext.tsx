@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 
-const API_URL = 'http://172.30.71.74:5000';
+const API_URL = 'http://192.168.0.160:5000';
 
 interface RatesData {
   base: string;
