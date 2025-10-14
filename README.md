@@ -11,6 +11,7 @@
     - login.tsx
     - register.tsx
     - RatesContext.tsx
+    - [code].tsx
 
     以上四個檔案需要:
     ```
