@@ -5,6 +5,34 @@
 - 科技116 盧姵帆 41271122H
 - 科技116 林渝桓 41271120H
 
+## 啟動說明
+0. 先改 IP (之後會調整這個部分)
+    - collection.tsx
+    - login.tsx
+    - register.tsx
+    - RatesContext.tsx
+    - [code].tsx
+
+    以上四個檔案需要:
+    ```
+    const API_URL = 'http://(這裡放 IP):5000';
+    ```
+
+需要同時開兩個終端機:
+1. 後端
+```
+cd backend
+venv\Scripts\activate
+python app.py 
+```
+    
+2. 前端
+```
+cd frontend
+cd SmartCurrencyApp
+npx expo start
+```
+    
 ## 系統架構 (System Architecture)
 
 本專案採用前後端分離的 Client-Server 架構。前端 App 負責使用者介面與互動，後端伺服器則負責核心業務邏輯、資料處理與 AI 辨識功能。
