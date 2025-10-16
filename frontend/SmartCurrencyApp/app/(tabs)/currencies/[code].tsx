@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-const API_URL = 'http://192.168.0.160:5000';
+import { FontAwesome5 } from '@expo/vector-icons';
+import Collapsible from 'react-native-collapsible'; // 引入折疊元件
+import { LinearGradient } from 'expo-linear-gradient';
 
-// 為單一貨幣的完整資料定義 TypeScript 介面
+const API_URL = 'http://172.30.70.96:5000';
+
+// ✨ 1. 更新 TypeScript 介面以包含所有新欄位 ✨
 interface CurrencyDetail {
     id: number;
     currency_code: string;
@@ -13,8 +17,11 @@ interface CurrencyDetail {
     country_zh: string;
     country_en: string;
     symbol: string;
-    description_zh: string;
-    image_url: string;
+    image_url: string; // 這應該是檔名，例如 'twd.png'
+    history_zh: string;
+    design_zh: string;
+    mechanism_zh: string;
+    influence_zh: string;
 }
 
 // 本地圖片對應表 (需要與 collection.tsx 同步)
@@ -22,9 +29,19 @@ const currencyImages: { [key: string]: any } = {
   'twd.png': require('../../../assets/currency_images/twd.png'),
   'usd.png': require('../../../assets/currency_images/usd.png'),
   'jpy.png': require('../../../assets/currency_images/jpy.png'),
-  // ... 其他貨幣圖片
+  'aud.png': require('../../../assets/currency_images/aud.png'),
+  'cad.png': require('../../../assets/currency_images/cad.png'),
+  'chf.png': require('../../../assets/currency_images/chf.png'),
+  'cny.png': require('../../../assets/currency_images/cny.png'),
+  'eur.png': require('../../../assets/currency_images/eur.png'),
+  'gbp.png': require('../../../assets/currency_images/gbp.png'),
+  'hkd.png': require('../../../assets/currency_images/hkd.png'),
+  'inr.png': require('../../../assets/currency_images/inr.png'),
+  'krw.png': require('../../../assets/currency_images/krw.png'),
+  'sgd.png': require('../../../assets/currency_images/sgd.png'),
 };
 
+// 屬性面板的單項元件
 const StatItem = ({ label, value }: { label: string, value: string | undefined }) => (
     <View style={styles.statItem}>
         <Text style={styles.statLabel}>{label}</Text>
@@ -32,21 +49,38 @@ const StatItem = ({ label, value }: { label: string, value: string | undefined }
     </View>
 );
 
+// ✨ 2. 建立可折疊的卡片元件 ✨
+const CollapsibleCard = ({ title, content, iconName }: { title: string, content: string, iconName: any }) => {
+    const [isCollapsed, setIsCollapsed] = useState(true); // 預設折疊
+
+    return (
+        <View style={styles.collapsibleCard}>
+            <TouchableOpacity onPress={() => setIsCollapsed(!isCollapsed)} style={styles.collapsibleHeader}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <FontAwesome5 name={iconName} size={18} color="#007AFF" />
+                    <Text style={styles.sectionTitle}>{title}</Text>
+                </View>
+                <FontAwesome5 name={isCollapsed ? 'chevron-down' : 'chevron-up'} size={16} color="#666" />
+            </TouchableOpacity>
+            <Collapsible collapsed={isCollapsed}>
+                <Text style={styles.descriptionText}>{content}</Text>
+            </Collapsible>
+        </View>
+    );
+};
+
+
 export default function CurrencyDetailScreen() {
-    // 1. 從 URL 中獲取動態參數 'code'
     const { code } = useLocalSearchParams<{ code: string }>();
-    
     const [currency, setCurrency] = useState<CurrencyDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!code) return; // 如果 code 不存在，就不執行 fetch
-
+        if (!code) return;
         const fetchCurrencyDetail = async () => {
             try {
                 setLoading(true);
-                // 2. 使用 code 參數呼叫後端 API
                 const response = await fetch(`${API_URL}/api/currencies/${code}`);
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -60,26 +94,23 @@ export default function CurrencyDetailScreen() {
                 setLoading(false);
             }
         };
-
         fetchCurrencyDetail();
-    }, [code]); // 當 code 參數改變時，重新 fetch
+    }, [code]);
 
-    if (loading) {
-        return <View style={styles.center}><ActivityIndicator size="large" /></View>;
-    }
-    if (error || !currency) {
-        return <View style={styles.center}><Text style={styles.errorText}>{error || '無法載入資料'}</Text></View>;
-    }
+    if (loading) return <View style={styles.center}><ActivityIndicator size="large" /></View>;
+    if (error || !currency) return <View style={styles.center}><Text style={styles.errorText}>{error || '無法載入資料'}</Text></View>;
 
     return (
         <SafeAreaView style={styles.container} edges={['bottom']}>
-            {/* 使用 Stack.Screen 來動態設定頁面標題 */}
             <Stack.Screen options={{ title: currency.name_zh }} />
-            
+            <LinearGradient colors={['#e0f7fa', '#f0f2f5']} style={StyleSheet.absoluteFill} />
+
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 {/* 主視覺區 */}
                 <View style={styles.header}>
-                    <Image source={currencyImages[currency.image_url]} style={styles.mainImage} />
+                    <View style={styles.imageContainer}>
+                        <Image source={currencyImages[currency.image_url]} style={styles.mainImage} />
+                    </View>
                 </View>
 
                 {/* 標題與代碼 */}
@@ -88,46 +119,52 @@ export default function CurrencyDetailScreen() {
                     <Text style={styles.currencyCode}>{currency.currency_code}</Text>
                 </View>
 
-                {/* 屬性面板 */}
+                {/* 基礎屬性面板 */}
                 <View style={styles.statsCard}>
                     <StatItem label="英文名稱" value={currency.name_en} />
                     <StatItem label="所屬國家/地區" value={currency.country_zh} />
                     <StatItem label="貨幣符號" value={currency.symbol} />
                 </View>
 
-                {/* 歷史與故事 */}
-                <View style={styles.descriptionCard}>
-                    <Text style={styles.sectionTitle}>背景故事</Text>
-                    <Text style={styles.descriptionText}>{currency.description_zh}</Text>
-                </View>
-
-                {/* TODO: 未來的擴充功能 - 顯示其他面額 */}
-                <View style={styles.denominationsCard}>
-                    <Text style={styles.sectionTitle}>其他面額</Text>
-                    <Text style={styles.placeholderText}>此功能即將推出...</Text>
-                </View>
+                {/* ✨ 3. 使用新的可折疊卡片來顯示詳細資訊 ✨ */}
+                <CollapsibleCard title="歷史背景" iconName="landmark" content={currency.history_zh} />
+                <CollapsibleCard title="設計與文化" iconName="palette" content={currency.design_zh} />
+                <CollapsibleCard title="發行機制" iconName="gavel" content={currency.mechanism_zh} />
+                <CollapsibleCard title="國際影響力" iconName="globe-americas" content={currency.influence_zh} />
             </ScrollView>
         </SafeAreaView>
     );
 }
 
+// --- ✨ 全新、卡牌風格的樣式表 ✨ ---
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f0f2f5' },
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    container: { flex: 1 },
+    center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f2f5' },
     errorText: { color: 'red', fontSize: 16 },
     scrollContent: { paddingBottom: 40 },
-    header: { alignItems: 'center', marginVertical: 20 },
-    mainImage: { width: '90%', height: 150, resizeMode: 'contain', borderRadius: 10 },
+    header: { alignItems: 'center', paddingVertical: 20 },
+    imageContainer: { 
+        width: '90%', 
+        aspectRatio: 2 / 1, // 維持鈔票長寬比
+        backgroundColor: 'white', 
+        borderRadius: 15, 
+        padding: 10,
+        shadowColor: '#000', 
+        shadowOffset: { width: 0, height: 5 }, 
+        shadowOpacity: 0.2, 
+        shadowRadius: 15, 
+        elevation: 10 
+    },
+    mainImage: { width: '100%', height: '100%', resizeMode: 'contain' },
     titleContainer: { paddingHorizontal: 20, marginBottom: 20, alignItems: 'center' },
-    currencyName: { fontSize: 28, fontWeight: 'bold', color: '#1c1e21' },
-    currencyCode: { fontSize: 16, color: '#65676b', marginTop: 4 },
-    statsCard: { backgroundColor: 'white', borderRadius: 12, marginHorizontal: 20, padding: 20, marginBottom: 20 },
-    statItem: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f0f2f5' },
+    currencyName: { fontSize: 32, fontWeight: 'bold', color: '#1c1e21' },
+    currencyCode: { fontSize: 18, color: '#65676b', marginTop: 4, letterSpacing: 1 },
+    statsCard: { backgroundColor: 'white', borderRadius: 12, marginHorizontal: 20, paddingVertical: 10, paddingHorizontal: 20, marginBottom: 20, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 3 },
+    statItem: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f0f2f5' },
     statLabel: { fontSize: 16, color: '#65676b' },
-    statValue: { fontSize: 16, fontWeight: '500', color: '#1c1e21' },
-    descriptionCard: { backgroundColor: 'white', borderRadius: 12, marginHorizontal: 20, padding: 20, marginBottom: 20 },
-    sectionTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 10, color: '#1c1e21' },
-    descriptionText: { fontSize: 16, lineHeight: 24, color: '#333' },
-    denominationsCard: { backgroundColor: 'white', borderRadius: 12, marginHorizontal: 20, padding: 20 },
-    placeholderText: { fontSize: 16, color: '#999', fontStyle: 'italic', textAlign: 'center' },
+    statValue: { fontSize: 16, fontWeight: '600', color: '#1c1e21', flex: 1, textAlign: 'right' },
+    collapsibleCard: { backgroundColor: 'white', borderRadius: 12, marginHorizontal: 20, marginBottom: 15, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 3 },
+    collapsibleHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20 },
+    sectionTitle: { fontSize: 20, fontWeight: 'bold', color: '#1c1e21', marginLeft: 10 },
+    descriptionText: { fontSize: 16, lineHeight: 26, color: '#333', paddingHorizontal: 20, paddingBottom: 20 },
 });

@@ -3,12 +3,22 @@ import { StyleSheet, Text, View, FlatList, Image, ActivityIndicator, TouchableOp
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 
-const API_URL = 'http://192.168.0.160:5000';
+const API_URL = 'http://172.30.70.96:5000';
 
 const currencyImages: { [key: string]: any } = {
   'twd.png': require('../../assets/currency_images/twd.png'),
   'usd.png': require('../../assets/currency_images/usd.png'),
   'jpy.png': require('../../assets/currency_images/jpy.png'),
+  'aud.png': require('../../assets/currency_images/aud.png'),
+  'cad.png': require('../../assets/currency_images/cad.png'),
+  'chf.png': require('../../assets/currency_images/chf.png'),
+  'cny.png': require('../../assets/currency_images/cny.png'),
+  'eur.png': require('../../assets/currency_images/eur.png'),
+  'gbp.png': require('../../assets/currency_images/gbp.png'),
+  'hkd.png': require('../../assets/currency_images/hkd.png'),
+  'inr.png': require('../../assets/currency_images/inr.png'),
+  'krw.png': require('../../assets/currency_images/krw.png'),
+  'sgd.png': require('../../assets/currency_images/sgd.png'),
 };
 
 const collectedStamp = require('../../assets/images/collected-stamp.png');

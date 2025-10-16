@@ -1,14 +1,6 @@
 // app/(tabs)/recognize.tsx
 import React, { useMemo, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  ActivityIndicator,
-  ScrollView,
-  Platform,
-} from "react-native";
+import { View, Text, Image, TouchableOpacity, ActivityIndicator, ScrollView, Platform,} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 
@@ -27,9 +19,9 @@ const COLORS = {
 // 依你的環境調整（若用行動裝置 + 本機後端，Android 模擬器要用 10.0.2.2）
 const API_BASE =
   Platform.select({
-    ios: "http://192.168.0.180:5000",
-    android: "http://192.168.0.180:5000",
-    default: "http://127.0.0.1:5000",
+    ios: "http://172.30.70.96:5000",
+    android: "http://172.30.70.96:5000",
+    default: "http://172.30.70.96:5000",
   })!;
 
 export default function RecognizeScreen() {

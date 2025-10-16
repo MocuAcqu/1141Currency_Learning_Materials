@@ -1,6 +1,15 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 
-const API_URL = 'http://192.168.0.160:5000';
+const API_URL = 'http://172.30.70.96:5000';
+
+interface CurrencyInfo {
+  id: number;
+  currency_code: string;
+  name_zh: string;
+  country_zh: string;
+  symbol: string;
+  image_url: string;
+}
 
 interface RatesData {
   base: string;
@@ -8,7 +17,8 @@ interface RatesData {
 }
 
 interface RatesContextType {
-  ratesData: RatesData | null;
+  ratesData: RatesData | null; 
+  currenciesInfo: CurrencyInfo[] | null;
   loading: boolean;
   error: string | null;
 }
@@ -17,18 +27,29 @@ const RatesContext = createContext<RatesContextType | undefined>(undefined);
 
 export const RatesProvider = ({ children }: { children: ReactNode }) => {
   const [ratesData, setRatesData] = useState<RatesData | null>(null);
+  const [currenciesInfo, setCurrenciesInfo] = useState<CurrencyInfo[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchRates = async () => {
+    const fetchInitialData = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/rates`);
-        if (!response.ok) throw new Error('網路回應不正確');
-        const data = await response.json();
-        if ('error' in data) throw new Error(data.error);
+        const [ratesResponse, currenciesResponse] = await Promise.all([
+          fetch(`${API_URL}/api/rates`),
+          fetch(`${API_URL}/api/currencies`)
+        ]);
 
-        setRatesData(data);
+        if (!ratesResponse.ok) throw new Error('無法獲取匯率資料');
+        if (!currenciesResponse.ok) throw new Error('無法獲取貨幣資訊');
+
+        const ratesJson = await ratesResponse.json();
+        const currenciesJson = await currenciesResponse.json();
+        
+        if (ratesJson.error) throw new Error(ratesJson.error);
+        if (currenciesJson.error) throw new Error(currenciesJson.error);
+
+        setRatesData(ratesJson);
+        setCurrenciesInfo(currenciesJson);
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : '發生未知錯誤');
@@ -37,10 +58,10 @@ export const RatesProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    fetchRates(); // 這個 effect 只會在 App 啟動時執行一次
+    fetchInitialData();
   }, []);
 
-  const value = { ratesData, loading, error };
+  const value = { ratesData,  currenciesInfo, loading, error };
 
   return <RatesContext.Provider value={value}>{children}</RatesContext.Provider>;
 };

@@ -9,7 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 const { height } = Dimensions.get('window');
 
 export default function ConverterScreen() {
-  const { ratesData, loading, error } = useRates();
+  const { ratesData, currenciesInfo, loading, error } = useRates();
 
   const [amount, setAmount] = useState('100');
   const [fromCurrency, setFromCurrency] = useState('TWD');
@@ -29,6 +29,14 @@ export default function ConverterScreen() {
     return { convertedAmount: result, calculationRate: finalRate };
   }, [amount, fromCurrency, toCurrency, ratesData]);
 
+  const countryMap = useMemo(() => {
+    if (!currenciesInfo) return {};
+    return currenciesInfo.reduce((map, currency) => {
+      map[currency.currency_code] = currency.country_zh;
+      return map;
+    }, {} as Record<string, string>);
+  }, [currenciesInfo]);
+
   const handleSwapCurrencies = () => {
     setFromCurrency(toCurrency);
     setToCurrency(fromCurrency);
@@ -40,10 +48,14 @@ export default function ConverterScreen() {
     if (!searchQuery) {
       return allRates;
     }
-    return allRates.filter(([currency]) => 
-      currency.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [ratesData, searchQuery]);
+    return allRates.filter(([currencyCode]) => {
+      const currencyName = countryMap[currencyCode] || '';
+      return (
+        currencyCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        currencyName.includes(searchQuery)
+      );
+    });
+  }, [ratesData, searchQuery, countryMap]);
 
 
   if (loading) return <View style={styles.center}><Text>載入匯率資料中...</Text></View>;
@@ -120,19 +132,27 @@ export default function ConverterScreen() {
             <Text style={styles.modalTitle}>即時匯率查詢 (基準: {ratesData?.base})</Text>
             <TextInput
               style={styles.searchBar}
-              placeholder="搜尋貨幣 (例如 USD)"
+              placeholder="搜尋貨幣代碼 (例如 USD)"
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
             <FlatList
               data={filteredRates}
               keyExtractor={item => item[0]}
-              renderItem={({ item }) => (
-                <View style={styles.rateItem}>
-                  <Text style={styles.currencyName}>{item[0]}</Text>
-                  <Text style={styles.currencyRate}>{item[1]}</Text>
-                </View>
-              )}
+              renderItem={({ item }) => {
+                const currencyCode = item[0];
+                const rateValue = item[1];
+                const countryName = countryMap[currencyCode] || '';
+
+                return (
+                  <View style={styles.rateItem}>
+                    <View>
+                      <Text style={styles.currencyName}>{currencyCode}    {countryName}</Text>
+                    </View>
+                    <Text style={styles.currencyRate}>{rateValue.toFixed(4)}</Text>
+                  </View>
+                );
+              }}
               style={styles.rateList}
             />
             <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
@@ -174,6 +194,7 @@ const styles = StyleSheet.create({
     rateList: { width: '100%' },
     rateItem: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#eee' },
     currencyName: { fontSize: 16, fontWeight: '500' },
+    countryName: { fontSize: 14, color: '#666', marginTop: 2 },
     currencyRate: { fontSize: 16, color: '#333' },
     closeButton: { marginTop: 15, backgroundColor: '#007AFF', paddingVertical: 10, paddingHorizontal: 30, borderRadius: 10 },
     closeButtonText: { color: 'white', fontSize: 16 },

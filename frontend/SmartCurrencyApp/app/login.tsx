@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
-const API_URL = 'http://192.168.0.160:5000';
+const API_URL = 'http://172.30.70.96:5000';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
