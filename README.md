@@ -12,6 +12,7 @@
     - register.tsx
     - RatesContext.tsx
     - [code].tsx
+    - recognize.tsx
 
     以上四個檔案需要:
     ```
