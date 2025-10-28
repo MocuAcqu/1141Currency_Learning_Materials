@@ -1,8 +1,16 @@
-// app/(tabs)/recognize.tsx
 import React, { useMemo, useRef, useState } from "react";
-import { View, Text, Image, TouchableOpacity, ActivityIndicator, ScrollView, Platform,} from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+  ScrollView,
+  Platform,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
+import ResultsCharts from "../../components/ResultsCharts";
 
 // ====== Theme ======
 const COLORS = {
@@ -19,9 +27,9 @@ const COLORS = {
 // 依你的環境調整（若用行動裝置 + 本機後端，Android 模擬器要用 10.0.2.2）
 const API_BASE =
   Platform.select({
-    ios: "http://172.30.70.96:5000",
-    android: "http://172.30.70.96:5000",
-    default: "http://172.30.70.96:5000",
+    ios: "http://192.168.0.160:5000",
+    android: "http://192.168.0.160:5000",
+    default: "http://192.168.0.160:5000",
   })!;
 
 export default function RecognizeScreen() {
@@ -55,7 +63,7 @@ export default function RecognizeScreen() {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: "images",
       quality: 1,
     });
     if (!result.canceled && result.assets?.[0]?.uri) {
@@ -77,7 +85,7 @@ export default function RecognizeScreen() {
       return;
     }
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: "images",
       quality: 1,
     });
     if (!result.canceled && result.assets?.[0]?.uri) {
@@ -156,8 +164,8 @@ export default function RecognizeScreen() {
             ...shadowStyle,
           }}
         >
-          <FancyButton label="📷 拍照" onPress={askCamera} />
-          <FancyButton label="🖼️ 相簿" onPress={askAlbum} />
+          <FancyButton label="📷 開啟相機" onPress={askCamera} />
+          <FancyButton label="🖼️ 從相簿匯入" onPress={askAlbum} />
         </View>
       </View>
 
@@ -243,45 +251,18 @@ export default function RecognizeScreen() {
             }}
           >
             {resJson.ok ? (
-              <>
-                <ResultRow
-                  title="Currency"
-                  value={`${resJson.currency?.pred ?? "-"} (p=${
-                    resJson.currency?.prob != null
-                      ? Math.round(resJson.currency.prob * 100000)
-                      : "-"
-                  })`}
-                />
-                <TopList
-                  header="Top-K 幣別"
-                  items={(resJson.currency?.top_k ?? []).map((c: any) => (
-                    `${c.currency}  p=${Math.round((c.prob ?? 0) * 100000)}`
-                  ))}
-                />
-
-                <ResultRow
-                  title="Denomination"
-                  value={`${resJson.denomination?.pred ?? "-"} (p=${
-                    resJson.denomination?.prob != null
-                      ? Math.round(resJson.denomination.prob * 100000)
-                      : "-"
-                  })`}
-                />
-                <TopList
-                  header="Top-5 面額"
-                  items={(resJson.denomination?.top_5 ?? []).map((d: any) => (
-                    `${d.denomination}  p=${Math.round((d.prob ?? 0) * 100000)}`
-                  ))}
-                />
-              </>
+              <ResultsCharts resJson={resJson} color={COLORS.primary} />
             ) : (
               <>
                 <Text style={{ color: COLORS.danger, fontWeight: "700", fontSize: 16 }}>發生錯誤</Text>
-                <Text selectable style={{ color: COLORS.text }}>{String(resJson.error ?? "Unknown error")}</Text>
+                <Text selectable style={{ color: COLORS.text }}>
+                  {String(resJson.error ?? "Unknown error")}
+                </Text>
               </>
             )}
           </View>
         )}
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -302,42 +283,5 @@ function FancyButton({ label, onPress }: { label: string; onPress: () => void })
     >
       <Text style={{ color: COLORS.primary, fontWeight: "700" }}>{label}</Text>
     </TouchableOpacity>
-  );
-}
-
-function ResultRow({ title, value }: { title: string; value: string }) {
-  return (
-    <View
-      style={{
-        backgroundColor: "#f1f5f9",
-        borderRadius: 12,
-        padding: 12,
-      }}
-    >
-      <Text style={{ color: COLORS.textDark, fontWeight: "700", marginBottom: 4 }}>{title}:</Text>
-      <Text style={{ color: COLORS.text }}>{value}</Text>
-    </View>
-  );
-}
-
-function TopList({ header, items }: { header: string; items: string[] }) {
-  return (
-    <View
-      style={{
-        backgroundColor: "#f8fafc",
-        borderRadius: 12,
-        padding: 12,
-        gap: 6,
-      }}
-    >
-      <Text style={{ color: COLORS.textDark, fontWeight: "700" }}>{header}：</Text>
-      {items.length === 0 ? (
-        <Text style={{ color: COLORS.text }}>無</Text>
-      ) : (
-        items.map((t, i) => (
-          <Text key={i} style={{ color: COLORS.text }}>{`${i + 1}. ${t}`}</Text>
-        ))
-      )}
-    </View>
   );
 }

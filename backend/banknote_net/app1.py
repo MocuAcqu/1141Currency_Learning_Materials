@@ -220,4 +220,4 @@ if __name__ == "__main__":
     # 啟動時載入
     init_models_and_set_globals(k_neighbors=5)
     # 對外服務（若要給手機/Android 模擬器連，請用 0.0.0.0）
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="192.168.0.160", port=8000, debug=True)

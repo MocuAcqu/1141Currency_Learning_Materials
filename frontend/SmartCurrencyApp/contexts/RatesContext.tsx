@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 
-const API_URL = 'http://172.30.70.96:5000';
+const API_URL = 'http://192.168.0.160:5000';
 
 interface CurrencyInfo {
   id: number;

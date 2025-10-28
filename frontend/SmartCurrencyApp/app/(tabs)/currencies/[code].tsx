@@ -6,7 +6,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import Collapsible from 'react-native-collapsible'; // 引入折疊元件
 import { LinearGradient } from 'expo-linear-gradient';
 
-const API_URL = 'http://172.30.70.96:5000';
+const API_URL = 'http://192.168.0.160:5000';
 
 // ✨ 1. 更新 TypeScript 介面以包含所有新欄位 ✨
 interface CurrencyDetail {

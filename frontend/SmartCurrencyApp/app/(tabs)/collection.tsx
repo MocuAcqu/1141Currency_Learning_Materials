@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, FlatList, Image, ActivityIndicator, TouchableOp
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 
-const API_URL = 'http://172.30.70.96:5000';
+const API_URL = 'http://192.168.0.160:5000';
 
 const currencyImages: { [key: string]: any } = {
   'twd.png': require('../../assets/currency_images/twd.png'),
