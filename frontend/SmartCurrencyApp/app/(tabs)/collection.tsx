@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, FlatList, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link } from 'expo-router';
+import { Link, useFocusEffect } from 'expo-router';
+import { useAuth } from '../../contexts/AuthContext';
 
-const API_URL = 'http://192.168.0.160:5000';
+const API_URL = 'http://192.168.0.161:5000';
 
 const currencyImages: { [key: string]: any } = {
   'twd.png': require('../../assets/currency_images/twd.png'),
@@ -19,7 +20,12 @@ const currencyImages: { [key: string]: any } = {
   'inr.png': require('../../assets/currency_images/inr.png'),
   'krw.png': require('../../assets/currency_images/krw.png'),
   'sgd.png': require('../../assets/currency_images/sgd.png'),
+  'dem.png': require('../../assets/currency_images/dem_10.png'),
+  'frf.png': require('../../assets/currency_images/frf_100.png'),
+  'rub.png': require('../../assets/currency_images/rub_100.png'),
+  'zar.png': require('../../assets/currency_images/zar_10.png'),
 };
+
 
 const collectedStamp = require('../../assets/images/collected-stamp.png');
 
@@ -31,14 +37,17 @@ interface Currency {
   image_url: string;
 }
 
-// --- 模擬的使用者收藏狀態 ---
-// TODO: 未來這份資料應該從後端 API 獲取
-const userCollectedCurrencies = new Set(['TWD']); // 假設使用者已收集 TWD 和 JPY
-
 export default function CollectionScreen() {
+  const { collections, fetchCollections } = useAuth();
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchCollections();
+    }, [])
+  );
 
   useEffect(() => {
     const fetchCurrencies = async () => {
@@ -70,7 +79,7 @@ export default function CollectionScreen() {
         data={currencies}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => {
-          const isCollected = userCollectedCurrencies.has(item.currency_code);
+          const isCollected = collections.has(item.currency_code);
 
           return (
             <Link href={`/currencies/${item.currency_code}`} asChild>

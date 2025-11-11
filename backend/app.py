@@ -291,7 +291,8 @@ def login():
 
         if user and check_password_hash(user['password'], password):
             additional_claims = {"username": user['username']}
-            access_token = create_access_token(identity=user['id'], additional_claims=additional_claims)
+            user_identity = str(user['id'])
+            access_token = create_access_token(identity=user_identity, additional_claims=additional_claims)
 
             return jsonify(
                 access_token=access_token,
@@ -403,14 +404,63 @@ def get_currency_by_code(currency_code):
         cursor.execute(query, (currency_code.upper(),)) 
         currency = cursor.fetchone() 
         
-        if currency:
-            return jsonify(currency)
-        else:
+        if not currency:
             return jsonify({"error": "找不到指定的貨幣"}), 404
+        
+        denominations_query = "SELECT value, type, image_filename, description FROM denominations WHERE currency_id = %s ORDER BY CAST(value AS UNSIGNED) ASC"
+        cursor.execute(denominations_query, (currency['id'],))
+        denominations = cursor.fetchall()
+        
+        currency['denominations'] = denominations
+            
+        return jsonify(currency)
     
     except mysql.connector.Error as err:
         print(f"查詢錯誤: {err}")
         return jsonify({"error": "伺服器查詢錯誤"}), 500
+    finally:
+        if 'conn' in locals() and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+@app.route('/api/me/collections', methods=['POST'])
+@jwt_required() # 同樣需要使用者登入
+def add_to_my_collections():
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+    currency_code = data.get('currency_code')
+
+    if not currency_code:
+        return jsonify({"error": "缺少 'currency_code'"}), 400
+
+    try:
+        conn = db_pool.get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # 1. 根據 currency_code 找到對應的 currency_id
+        cursor.execute("SELECT id FROM currencies WHERE currency_code = %s", (currency_code,))
+        currency = cursor.fetchone()
+        if not currency:
+            return jsonify({"error": "無效的貨幣代碼"}), 404
+
+        currency_id = currency['id']
+
+        # 2. 將 user_id 和 currency_id 插入到 user_collections 表格中
+        #    因為我們設定了 UNIQUE KEY，如果已存在，這裡會拋出錯誤
+        cursor.execute(
+            "INSERT INTO user_collections (user_id, currency_id) VALUES (%s, %s)",
+            (current_user_id, currency_id)
+        )
+        conn.commit()
+        
+        return jsonify({"message": f"成功收藏 {currency_code}！"}), 201
+
+    except mysql.connector.errors.IntegrityError:
+        # 如果觸發了 UNIQUE KEY 限制 (重複收藏)，會進入這裡
+        return jsonify({"message": f"{currency_code} 已經在您的收藏中"}), 200
+    except mysql.connector.Error as err:
+        print(f"資料庫錯誤: {err}")
+        return jsonify({"error": "伺服器資料庫錯誤"}), 500
     finally:
         if 'conn' in locals() and conn.is_connected():
             cursor.close()

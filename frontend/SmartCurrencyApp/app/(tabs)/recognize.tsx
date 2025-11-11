@@ -7,10 +7,12 @@ import {
   ActivityIndicator,
   ScrollView,
   Platform,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import ResultsCharts from "../../components/ResultsCharts";
+import { useAuth } from "../../contexts/AuthContext";
 
 // ====== Theme ======
 const COLORS = {
@@ -27,15 +29,16 @@ const COLORS = {
 // 依你的環境調整（若用行動裝置 + 本機後端，Android 模擬器要用 10.0.2.2）
 const API_BASE =
   Platform.select({
-    ios: "http://192.168.0.160:5000",
-    android: "http://192.168.0.160:5000",
-    default: "http://192.168.0.160:5000",
+    ios: "http://192.168.0.161:5000",
+    android: "http://192.168.0.161:5000",
+    default: "http://192.168.0.161:5000",
   })!;
 
 export default function RecognizeScreen() {
   const [img, setImg] = useState<string | null>(null);
   const [resJson, setResJson] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const { collections, addCollection } = useAuth();
 
   // Web: 隱藏 input[file]（支援 capture 相機）
   const webFileInputRef = useRef<HTMLInputElement | null>(null);
@@ -126,6 +129,29 @@ export default function RecognizeScreen() {
       });
       const json = await resp.json();
       setResJson(json);
+
+      if (json.ok && json.currency?.pred) {
+        const predictedCurrency = json.currency.pred.split('_')[0]; // 例如從 'USD_100_1' 中取出 'USD'
+        
+        // 檢查是否已經收藏過
+        if (!collections.has(predictedCurrency)) {
+          // 如果未收藏，彈出詢問視窗
+          Alert.alert(
+            "發現新貨幣！",
+            `您辨識出了 ${predictedCurrency}，要將它加入您的收藏冊嗎？`,
+            [
+              { text: "不了，謝謝" },
+              { 
+                text: "立即收藏！", 
+                onPress: () => {
+                  addCollection(predictedCurrency);
+                  Alert.alert("收藏成功！", `您已成功將 ${predictedCurrency} 加入收藏冊！`);
+                }
+              },
+            ]
+          );
+        }
+      }
     } catch (err: any) {
       setResJson({ ok: false, error: String(err) });
     } finally {
