@@ -1,17 +1,27 @@
 {
   "expo": {
-    "name": "SmartCurrencyApp",
+    "name": "智慧貨幣收集家 SmartCurrencyApp",
     "slug": "SmartCurrencyApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/Smart Currency.png",
+    "splash": {
+      "image": "./assets/splash.png", 
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "scheme": "smartcurrencyapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.smartcurrency.smartcurrencycollector",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.smartcurrency.smartcurrencycollector",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -44,6 +54,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c7287831-f8a2-482d-9d61-6f40bd6664c3"
+      }
     }
   }
 }

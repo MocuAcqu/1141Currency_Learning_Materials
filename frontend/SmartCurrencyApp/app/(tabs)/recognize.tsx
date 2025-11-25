@@ -29,9 +29,9 @@ const COLORS = {
 // 依你的環境調整（若用行動裝置 + 本機後端，Android 模擬器要用 10.0.2.2）
 const API_BASE =
   Platform.select({
-    ios: "http://192.168.0.161:5000",
-    android: "http://192.168.0.161:5000",
-    default: "http://192.168.0.161:5000",
+    ios: "http://192.168.0.160:5000",
+    android: "http://192.168.0.160:5000",
+    default: "http://192.168.0.160:5000",
   })!;
 
 export default function RecognizeScreen() {
@@ -287,8 +287,17 @@ export default function RecognizeScreen() {
               </>
             )}
           </View>
+          
         )}
-
+        <View
+          style={{
+            paddingHorizontal: 16,
+            paddingTop: 3,
+          }}>
+          <Text style={{ fontSize: 9 }}>目前支援: </Text>
+          <Text style={{ fontSize: 3 }}> </Text>
+          <Text style={{ fontSize: 8 }}>AUD: "澳幣", BRL: "巴西幣", CAD: "加幣", EUR: "歐元", GBP: "英鎊", INR: "印度盧比", JPY: "日圓", MXN: "墨西哥披索", PKR: "巴基斯坦盧比", SGD: "新加坡幣", TRY: "土耳其里拉", USD: "美金", NZD: "紐幣", NOK: "挪威克朗", MYR: "馬來西亞幣", IDR: "印尼盾", PHP: "菲律賓披索"。</Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

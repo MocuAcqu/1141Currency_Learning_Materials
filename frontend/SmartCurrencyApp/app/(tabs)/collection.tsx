@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useFocusEffect } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 
-const API_URL = 'http://192.168.0.161:5000';
+const API_URL = 'http://192.168.0.160:5000';
 
 const currencyImages: { [key: string]: any } = {
   'twd.png': require('../../assets/currency_images/twd.png'),

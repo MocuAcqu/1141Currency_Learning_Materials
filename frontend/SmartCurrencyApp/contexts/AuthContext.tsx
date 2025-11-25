@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router'; 
-const API_URL = 'http://192.168.0.161:5000';
+const API_URL = 'http://192.168.0.160:5000';
 
 interface User {
   id: number;

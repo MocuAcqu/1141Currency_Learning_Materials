@@ -407,7 +407,7 @@ def get_currency_by_code(currency_code):
         if not currency:
             return jsonify({"error": "找不到指定的貨幣"}), 404
         
-        denominations_query = "SELECT value, type, image_filename, description FROM denominations WHERE currency_id = %s ORDER BY CAST(value AS UNSIGNED) ASC"
+        denominations_query = "SELECT value, type, image_filename, description, description_front_zh, description_back_zh FROM denominations WHERE currency_id = %s ORDER BY CAST(value AS UNSIGNED) ASC"
         cursor.execute(denominations_query, (currency['id'],))
         denominations = cursor.fetchall()
         

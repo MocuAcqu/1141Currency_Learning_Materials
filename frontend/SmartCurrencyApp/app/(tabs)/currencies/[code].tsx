@@ -13,9 +13,11 @@ interface Denomination {
     type: 'coin' | 'note';
     image_filename: string;
     description: string | null;
+    description_front_zh: string | null;
+    description_back_zh: string | null; 
 }
 
-const API_URL = 'http://192.168.0.161:5000';
+const API_URL = 'http://192.168.0.160:5000';
 
 // ✨ 1. 更新 TypeScript 介面以包含所有新欄位 ✨
 interface CurrencyDetail {
@@ -188,6 +190,7 @@ export default function CurrencyDetailScreen() {
     const [error, setError] = useState<string | null>(null);
     const [isViewerVisible, setViewerVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState<any>(null);
+    const [activeIndex, setActiveIndex] = useState(0);
 
     const showImage = (imageFilename: string) => {
         const imageResource = currencyImages[imageFilename];
@@ -220,6 +223,8 @@ export default function CurrencyDetailScreen() {
 
     if (loading) return <View style={styles.center}><ActivityIndicator size="large" /></View>;
     if (error || !currency) return <View style={styles.center}><Text style={styles.errorText}>{error || '無法載入資料'}</Text></View>;
+
+    const activeDenomination = currency.denominations?.[activeIndex];
 
     return (
         <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -256,6 +261,7 @@ export default function CurrencyDetailScreen() {
                             height={150}
                             data={currency.denominations}
                             scrollAnimationDuration={500}
+                            onSnapToItem={(index) => setActiveIndex(index)}
                             // 輪播項目的渲染函式
                             renderItem={({ item }) => (
                                 <TouchableOpacity onPress={() => showImage(item.image_filename)} style={styles.carouselItem}>
@@ -264,6 +270,19 @@ export default function CurrencyDetailScreen() {
                                 </TouchableOpacity>
                             )}
                         />
+
+                        {activeDenomination && (
+                            <View style={styles.denominationDetailCard}>
+                                <View style={styles.detailRow}>
+                                    <Text style={styles.detailLabel}>正面：</Text>
+                                    <Text style={styles.detailContent}>{activeDenomination.description_front_zh || '暫無描述'}</Text>
+                                </View>
+                                <View style={styles.detailRow}>
+                                    <Text style={styles.detailLabel}>背面：</Text>
+                                    <Text style={styles.detailContent}>{activeDenomination.description_back_zh || '暫無描述'}</Text>
+                                </View>
+                            </View>
+                        )}
                     </View>
                 )}
 
@@ -329,4 +348,28 @@ const styles = StyleSheet.create({
     // Modal Styles
     modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center' },
     fullscreenImage: { width: '90%', height: '80%', resizeMode: 'contain' },
+    carouselSection: { marginBottom: 20, backgroundColor: 'white', paddingVertical: 20, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 3 },
+    denominationDetailCard: {
+        marginTop: 20,
+        marginHorizontal: 20,
+        padding: 15,
+        backgroundColor: '#f8f9fa',
+        borderRadius: 10,
+    },
+    detailRow: {
+        flexDirection: 'row',
+        marginBottom: 8,
+    },
+    detailLabel: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#007AFF',
+        width: 60,
+    },
+    detailContent: {
+        fontSize: 15,
+        lineHeight: 22,
+        color: '#333',
+        flex: 1,
+    },
 });
