@@ -109,6 +109,9 @@ contexts/                  # 全域 Context
 ├── AuthContext.tsx        # 登入/使用者狀態 Context
 └── RatesContext.tsx       # 匯率資料 Context
 ```
+### | 資料庫結構 ERD圖
+
+<img src="https://github.com/MocuAcqu/1141Currency_Learning_Materials/blob/main/1141CLM_ERD.png" width=600px>
 
 </details>
 
