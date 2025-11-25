@@ -1,20 +1,25 @@
 # 智慧貨幣收集家 (Smart Currency Collector)
 
-## 成員
+## 成員 (第二組)
 - 科技116 邱鈺婷 41271124H
 - 科技116 盧姵帆 41271122H
 - 科技116 林渝桓 41271120H
 
-## 啟動說明
-0. 先改 IP (之後會調整這個部分)
+## 專案內容
+<details>
+<summary>啟動說明</summary>
+
+### | 啟動說明
+0. 目前設計改本地 IP 
     - collection.tsx
     - login.tsx
     - register.tsx
     - RatesContext.tsx
     - [code].tsx
     - recognize.tsx
+    - AuthContext.tsx
 
-    以上四個檔案需要:
+    以上檔案需要:
     ```
     const API_URL = 'http://(這裡放 IP):5000';
     ```
@@ -33,8 +38,12 @@ cd frontend
 cd SmartCurrencyApp
 npx expo start
 ```
-    
-## 系統架構 (System Architecture)
+</details>
+
+<details>
+<summary>系統架構</summary>
+
+### | 系統架構 (System Architecture)
 
 本專案採用前後端分離的 Client-Server 架構。前端 App 負責使用者介面與互動，後端伺服器則負責核心業務邏輯、資料處理與 AI 辨識功能。
 
@@ -72,20 +81,64 @@ graph TD;
     style QuizAndCollection fill:#222,stroke:#555,color:#fff
 ```
 
-### | 前端服務架構
+### | 前端服務架構 (重點檔案之結構)
 ```
 app/
-├── (tabs)/                # 這個資料夾內的頁面會共享底部導航欄
-│   ├── _layout.tsx        # 這裡是設定底部導航欄的地方！
-│   ├── index.tsx          # 首頁 (第一個 Tab)
-│   ├── recognize.tsx      # 貨幣辨識頁 (第二個 Tab)
-│   ├── converter.tsx      # 貨幣換算頁 (第三個 Tab)
-│   └── collection.tsx     # 我的收藏頁 (第四個 Tab)
-│
-├── quiz.tsx               # 後測測驗頁 (獨立頁面)
-└── _layout.tsx            # 全局的佈局設定
+├── (tabs)/                     # 具有底部 Tab 導覽列的主分頁
+│   ├── currencies/            # 與貨幣功能相關的頁面群組
+│   │   └── [code].tsx         # 動態路由：顯示特定貨幣資訊
+│   ├── _layout.tsx        # currencies 子路由的佈局
+│   ├── collection.tsx     # 我的收藏頁
+│   ├── converter.tsx      # 貨幣換算頁
+│   ├── index.tsx          # 貨幣主頁
+│   └── recognize.tsx      # 貨幣辨識頁
+│   
+├── _layout.tsx            # Tabs 區域的底部導覽欄設定
+├── login.tsx              # 登入頁
+└── register.tsx           # 註冊頁
+```
+```
+assets/
+├── currency_images/       # 貨幣照片資源
+├── images/                # 通用圖片資源
+└── lottie/
+     └── money.json         # 動畫素材（Lottie）
+```
+```
+contexts/                  # 全域 Context
+├── AuthContext.tsx        # 登入/使用者狀態 Context
+└── RatesContext.tsx       # 匯率資料 Context
 ```
 
+</details>
+
+<details>
+<summary>功能說明</summary>
+
+### | 影像辨識 (Image Recognition)
+本功能將React Native (Expo) 中整合 [Microsoft BankNote-Net](https://github.com/microsoft/banknote-net)模型，完成**紙鈔幣別影像辨識**。使用者可以拍照或從相簿選擇一張紙鈔圖片後，經過模型辨識出它是哪一國的貨幣。
+
+p.s: Microsoft BankNote-Net Encoder:
+
+這個Open source 提供了一個已經訓練好的貨幣辨識模型，其中涵蓋了 17 種不同國家的貨幣、共 112 種面額。
+我們直接利用這些 embedding 特徵來建立分類器來辨識新影像中的貨幣種類與面額，所以不需要重新收集資料或重新訓練模型。
+
+* 功能
+    * 拍照或選擇紙鈔照片
+    * 圖片自動裁剪、縮放、正規化
+    * 使用 BankNote-Net encoder 標出紙鈔特徵
+    * 使用分類模型判斷紙鈔所屬國別
+    * 輸出結果
+ 
+* Part 1. Python 端：模型轉換
+  .h5 (Keras 格式)→ model.json + .bin ( TensorFlow.js )
+* Part 2. React Native 端：App 使用
+  * 使用 JavaScript (React Native) 撰寫程式碼，載入 model.json + .bin 並執行推論
+
+</details>
+
+<details>
+<summary>工具說明</summary>
 ### | 元件說明 (Component Descriptions)
 
 *   **Frontend (React Native App):**
@@ -115,23 +168,5 @@ app/
 
 *   **External Services:**
     *   **第三方匯率 API:** 一個外部的網路服務，提供即時、準確的全球貨幣匯率數據。後端伺服器會定時或按需向其請求資料。
-    
-### | 影像辨識 (Image Recognition)
-本功能將React Native (Expo) 中整合 [Microsoft BankNote-Net](https://github.com/microsoft/banknote-net)模型，完成**紙鈔幣別影像辨識**。使用者可以拍照或從相簿選擇一張紙鈔圖片後，經過模型辨識出它是哪一國的貨幣。
 
-p.s: Microsoft BankNote-Net Encoder:
-
-這個Open source 提供了一個已經訓練好的貨幣辨識模型，其中涵蓋了 17 種不同國家的貨幣、共 112 種面額。
-我們直接利用這些 embedding 特徵來建立分類器來辨識新影像中的貨幣種類與面額，所以不需要重新收集資料或重新訓練模型。
-
-* 功能
-    * 拍照或選擇紙鈔照片
-    * 圖片自動裁剪、縮放、正規化
-    * 使用 BankNote-Net encoder 標出紙鈔特徵
-    * 使用分類模型判斷紙鈔所屬國別
-    * 輸出結果
- 
-* Part 1. Python 端：模型轉換
-  .h5 (Keras 格式)→ model.json + .bin ( TensorFlow.js )
-* Part 2. React Native 端：App 使用
-  * 使用 JavaScript (React Native) 撰寫程式碼，載入 model.json + .bin 並執行推論
+</details>
