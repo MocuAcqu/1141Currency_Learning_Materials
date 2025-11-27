@@ -6,6 +6,8 @@
 - 科技116 林渝桓 41271120H
 
 ## 專案內容
+<img src="https://github.com/MocuAcqu/1141Currency_Learning_Materials/blob/main/Smart Currency.png" width=600px>
+
 <details>
 <summary>啟動說明</summary>
 
