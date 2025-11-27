@@ -238,6 +238,28 @@ contexts/                  # 全域 Context
     3.  **API 通訊：** 使用 `fetch` API，透過 RESTful API 協定與後端伺服器安全地通訊，發送 `GET` 請求獲取資料，或 `POST` 請求提交圖片及使用者資料。
     4.  **使用者認證：** 處理登入/註冊表單，並將獲取到的 JWT Access Token 安全地儲存在 `SecureStore` 中，附加在後續的所有認證請求標頭。
 
+*   **什麼是 Expo 呢?**
+  
+    Expo 是一個建立在 React Native 之上的開源框架和開發工具平台。
+    
+*   **為什麼本專案選擇使用 Expo？**
+  
+    在開發「智慧貨幣收集家」的過程中，我們選擇 Expo 作為主要的開發框架，主要基於以下幾點關鍵優勢：
+    1. 簡化的開發環境設定：
+    傳統的 React Native 開發需要安裝和設定龐大且複雜的原生開發環境，而 Expo 透過其 Managed Workflow (託管工作流)，將這些複雜性完全抽象掉。開發者無需接觸任何原生程式碼或設定，只需安裝 Node.js 和 Expo CLI，即可在 Windows、macOS 或 Linux 上立即開始開發，極大地降低了專案的啟動門檻。
+
+    2. 快速的開發迭代週期 (Expo Go)：
+    Expo Go 是一個安裝在手機上的客戶端應用程式。開發時，我們只需用 Expo Go 掃描電腦終端機上的 QR Code，即可在真實的手機上即時預覽 App。程式碼的任何修改都能透過 Fast Refresh 立即反映在手機上，這種「所見即所得」的開發體驗，遠比傳統的模擬器或原生建置流程要快得多，大幅提升了開發效率。
+
+    3. 豐富且穩定的通用 API 庫：
+    - Expo SDK 預先封裝了大量高品質、跨平台一致的原生功能 API。在我們的專案中，我們直接受益於：
+    - expo-image-picker: 輕鬆實現存取相機和相簿的核心功能。
+    - expo-secure-store: 安全地在裝置上儲存敏感資料，如使用者認證 Token。
+    - expo-constants / expo-dev-client: 簡化開發環境與生產環境的變數管理。
+    - expo-linear-gradient: 快速實現美觀的漸層背景。
+    
+    這些 API 都經過 Expo 團隊的嚴格測試，確保了在不同裝置和作業系統版本上的穩定性與相容性。
+
 ---
 
 #### **Backend Server (Python Flask)**
@@ -255,6 +277,17 @@ contexts/                  # 全域 Context
     3.  **收藏與資料服務:** 透過 SQL 查詢，管理 `user_collections` 表，處理使用者收藏貨幣的新增與查詢；同時提供對 `currencies` 和 `denominations` 表的查詢服務。
     4.  **影像辨識服務:** 接收前端上傳的圖片，回傳結構化的辨識結果 JSON。
     5.  **第三方服務代理:** 建立 `/api/rates` 端點，作為 App 與外部匯率 API 之間的中介層，隱藏 API Key 並統一資料格式。
+
+*   **什麼是 flask 呢?**
+    Flask 是一個使用 Python 程式語言編寫的**微 Web 框架 (Micro Web Framework)**，保持簡潔、輕量且高度可擴充的理念。
+
+    Flask 提供了一個 Web 應用最核心、最必要的基礎功能：
+    1.  **路由 (Routing)**：將特定的 URL 路徑（例如 `/api/login`）對應到特定的 Python 函式來處理。
+    2.  **請求-回應處理 (Request-Response Handling)**：提供工具（如 `request` 物件）來解析前端發來的 HTTP 請求，並提供工具（如 `jsonify`）來建構回傳給前端的 HTTP 回應。
+    3.  **模板引擎 (Templating)**：內建 Jinja2 模板引擎，用於（在傳統 Web 開發中）將資料渲染成 HTML 頁面。
+    4.  **開發伺服器**：內建一個簡單的伺服器，方便在開發階段快速啟動和測試應用。
+    
+    Flask 給予開發者完全的自由，可以根據專案的實際需求，自行選擇和整合各種第三方**擴充 (Extensions)**。
 
 ---
 
