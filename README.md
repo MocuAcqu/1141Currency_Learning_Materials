@@ -238,6 +238,8 @@ contexts/                  # 全域 Context
     3.  **API 通訊：** 使用 `fetch` API，透過 RESTful API 協定與後端伺服器安全地通訊，發送 `GET` 請求獲取資料，或 `POST` 請求提交圖片及使用者資料。
     4.  **使用者認證：** 處理登入/註冊表單，並將獲取到的 JWT Access Token 安全地儲存在 `SecureStore` 中，附加在後續的所有認證請求標頭。
 
+---
+
 #### **Backend Server (Python Flask)**
 
 *   **技術棧:**
@@ -254,6 +256,8 @@ contexts/                  # 全域 Context
     4.  **影像辨識服務:** 接收前端上傳的圖片，回傳結構化的辨識結果 JSON。
     5.  **第三方服務代理:** 建立 `/api/rates` 端點，作為 App 與外部匯率 API 之間的中介層，隱藏 API Key 並統一資料格式。
 
+---
+
 #### **Database (MySQL)**
 
 *   **技術棧:** `MySQL`
@@ -266,6 +270,8 @@ contexts/                  # 全域 Context
     2.  **貨幣知識模型 (`currencies`, `denominations`)**:
         *   `currencies` 表：儲存每種貨幣的核心知識，如國家、歷史背景、設計理念等。
         *   `denominations` 表：透過外鍵關聯 `currencies`，儲存該貨幣下所有不同面額的詳細資訊，包括圖片檔名和正反面描述。
+
+---
 
 #### **External Services (外部服務)**
 
