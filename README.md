@@ -279,6 +279,7 @@ contexts/                  # 全域 Context
     5.  **第三方服務代理:** 建立 `/api/rates` 端點，作為 App 與外部匯率 API 之間的中介層，隱藏 API Key 並統一資料格式。
 
 *   **什麼是 flask 呢?**
+   
     Flask 是一個使用 Python 程式語言編寫的**微 Web 框架 (Micro Web Framework)**，保持簡潔、輕量且高度可擴充的理念。
 
     Flask 提供了一個 Web 應用最核心、最必要的基礎功能：
