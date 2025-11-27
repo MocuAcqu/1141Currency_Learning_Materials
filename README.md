@@ -185,7 +185,7 @@ contexts/                  # 全域 Context
 ### | 集幣冊與收藏系統 (Collection & Gamification)
 
 *   **功能簡述：**
-    本功能希望將貨幣學習遊戲化，且可以產生行動學習的動機，握們提供一個「貨幣圖鑑」介面，展示 App 中收錄的所有貨幣。使用者透過「影像辨識」功能成功識別一種新貨幣後，即可將其「收藏」起來。已收藏的貨幣會在圖鑑中以特殊的「Got it」印章標示，給予使用者收集的成就感。
+    本功能希望將貨幣學習遊戲化，且可以產生行動學習的動機，提供一個「貨幣圖鑑」介面，展示 App 中收錄的所有貨幣。使用者透過「影像辨識」功能成功識別一種新貨幣後，即可將其「收藏」起來。已收藏的貨幣會在圖鑑中以特殊的「Got it」印章標示，給予使用者收集的成就感。
 
 *   **使用技術：**
     *   **前端**：
@@ -207,7 +207,6 @@ contexts/                  # 全域 Context
     *   **輸出**：在集幣冊頁面，已收藏的貨幣旁會顯示「Got it」印章。
 
 *   **所有功能：**
-    *   [x] 支援使用者註冊與登入。
     *   [x] 以列表形式展示所有可收集的貨幣。
     *   [x] 為已收藏的貨幣顯示特殊標記。
     *   [x] 點擊任一貨幣可進入「卡牌式」詳細資訊頁面，查看其歷史、設計、面額等豐富資訊。
@@ -218,34 +217,60 @@ contexts/                  # 全域 Context
 
 <details>
 <summary>工具說明</summary>
-### | 元件說明 (Component Descriptions)
 
-*   **Frontend (React Native App):**
-    *   **技術棧:** React Native (with Expo)
-    *   **角色:** 使用者手機上運行的應用程式，是使用者與系統互動的唯一入口。
-    *   **職責:**
-        1.  提供所有 UI 介面，如相機、資訊展示頁、測驗畫面等。
-        2.  處理使用者操作，如拍照、點擊按鈕、輸入文字。
-        3.  透過發送 HTTP API 請求與後端伺服器進行通訊，以獲取或提交資料。
-        4.  管理 App 的本地狀態。
+### | 工具與技術說明 (System Architecture & Tech Stack)
 
-*   **Backend Server (Python Flask):**
-    *   **技術棧:** Python, Flask
-    *   **角色:** 專案的大腦，處理所有核心業務邏輯與資料。
-    *   **職責:**
-        1.  **API Gateway:** 提供一組 RESTful API 接口，供前端 App 呼叫。
-        2.  **影像辨識服務:** 接收前端上傳的貨幣圖片，呼叫 AI 模型進行辨識，並回傳辨識結果。
-        3.  **[匯率換算服務](https://app.exchangerate-api.com/dashboard):** 接收前端的換算請求，呼叫第三方 API 獲取即時匯率，並執行計算。
-        4.  **測驗與收藏服務:** 管理使用者的測驗邏輯、計分、虛擬集幣冊與成就系統的資料存取。
+本專案採用前後端分離的現代化 Client-Server 架構。前端 App 負責使用者介面與互動，後端伺服器則負責核心業務邏輯、資料庫存取、AI 辨識及使用者認證等功能。
 
-*   **Database (MySQL):**
-    *   **技術棧:** MySQL
-    *   **角色:** 專案的永久性資料倉庫。
-    *   **職責:**
-        1.  **貨幣資料庫:** 儲存所有貨幣的詳細靜態資料，如名稱、國家、面額、歷史背景、文化故事等。
-        2.  **使用者資料庫:** 儲存使用者帳號資訊、虛擬集幣冊內容、測驗成績與解鎖的成就。
+#### **Frontend (React Native App)**
 
-*   **External Services:**
-    *   **第三方匯率 API:** 一個外部的網路服務，提供即時、準確的全球貨幣匯率數據。後端伺服器會定時或按需向其請求資料。
+*   **技術棧:**
+    *   **框架:** `React Native` 搭配 `Expo` 生態系，實現跨平台（iOS/Android）開發。
+    *   **路由:** `Expo Router`，採用檔案系統式路由，用於管理頁面導航與深層連結。
+    *   **狀態管理:** `React Context API`，用於建立全域的認證 (`AuthContext`) 與資料 (`RatesContext`) 狀態，實現跨頁面資料共享。
+    *   **原生功能:** `expo-image-picker` (存取相機與相簿)、`expo-secure-store` (安全儲存使用者 Token)。
+    *   **UI 與動畫:** `lottie-react-native` (實現流暢的 Lottie 動畫)、`react-native-reanimated-carousel` (高效能輪播元件)。
+    *   **資料持久化:** `@react-native-async-storage/async-storage` (本地儲存使用者任務進度)。
+
+*   **職責:**
+    1.  **UI 渲染與互動：** 提供所有使用者介面，包括遊戲化的首頁、相機/相簿介面、互動式匯率換算工具、卡牌式貨幣圖鑑等。
+    2.  **狀態管理：** 在本地管理 UI 狀態（如輸入框文字、Modal 開關），並透過 Context API 管理全域的使用者登入狀態與收藏列表。
+    3.  **API 通訊：** 使用 `fetch` API，透過 RESTful API 協定與後端伺服器安全地通訊，發送 `GET` 請求獲取資料，或 `POST` 請求提交圖片及使用者資料。
+    4.  **使用者認證：** 處理登入/註冊表單，並將獲取到的 JWT Access Token 安全地儲存在 `SecureStore` 中，附加在後續的所有認證請求標頭。
+
+#### **Backend Server (Python Flask)**
+
+*   **技術棧:**
+    *   **框架:** `Flask` (輕量級 Python Web 框架)。
+    *   **資料庫互動:** `mysql-connector-python`，透過連線池 (`pooling`) 高效管理與 MySQL 資料庫的連線。
+    *   **使用者認證:** `Flask-JWT-Extended`，實現基於 JSON Web Token (JWT) 的無狀態認證機制；`Werkzeug` 用於密碼的雜湊加密與驗證。
+    *   **Microsoft BankNote-Net 模型服務:**以此開源模型影像辨識貨幣圖片。
+    *   **環境變數管理:** `python-dotenv`，用於從 `.env` 檔案安全地載入 API Key 和資料庫密碼等敏感資訊。
+
+*   **職責:**
+    1.  **API Gateway:** 提供一組 RESTful API 端點（如 `/api/login`, `/api/currencies`, `/api/predict` 等），作為前後端通訊的統一接口。
+    2.  **使用者系統服務:** 處理使用者註冊、密碼加密、登入驗證、JWT Token 的生成與驗證。
+    3.  **收藏與資料服務:** 透過 SQL 查詢，管理 `user_collections` 表，處理使用者收藏貨幣的新增與查詢；同時提供對 `currencies` 和 `denominations` 表的查詢服務。
+    4.  **影像辨識服務:** 接收前端上傳的圖片，回傳結構化的辨識結果 JSON。
+    5.  **第三方服務代理:** 建立 `/api/rates` 端點，作為 App 與外部匯率 API 之間的中介層，隱藏 API Key 並統一資料格式。
+
+#### **Database (MySQL)**
+
+*   **技術棧:** `MySQL`
+*   **角色:** 專案的永久性資料倉庫，確保資料的持久化、一致性與安全性。
+
+*   **職責 (資料模型):**
+    1.  **使用者模型 (`users`, `user_collections`)**:
+        *   `users` 表：儲存使用者的帳號資訊（Email, 使用者名稱, 加密後的密碼）。
+        *   `user_collections` 表：透過外鍵關聯 `users` 和 `currencies`，建立使用者與貨幣之間的「多對多」收藏關係。
+    2.  **貨幣知識模型 (`currencies`, `denominations`)**:
+        *   `currencies` 表：儲存每種貨幣的核心知識，如國家、歷史背景、設計理念等。
+        *   `denominations` 表：透過外鍵關聯 `currencies`，儲存該貨幣下所有不同面額的詳細資訊，包括圖片檔名和正反面描述。
+
+#### **External Services (外部服務)**
+
+*   **第三方匯率 API:** `ExchangeRate-API.com`
+    *   **角色:** 提供即時、準確的全球貨幣匯率數據。
+    *   **整合方式:** 後端伺服器作為代理，按需向其發送 API 請求，獲取以新台幣 (TWD) 為基準的匯率資料，然後再提供給前端 App，避免將 API Key 暴露在前端。
 
 </details>
