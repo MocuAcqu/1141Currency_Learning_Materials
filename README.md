@@ -222,7 +222,7 @@ contexts/                  # 全域 Context
 
 本專案採用前後端分離的現代化 Client-Server 架構。前端 App 負責使用者介面與互動，後端伺服器則負責核心業務邏輯、資料庫存取、AI 辨識及使用者認證等功能。
 
-#### **Frontend (React Native App)**
+### **【Frontend (React Native App)】**
 
 *   **技術棧:**
     *   **框架:** `React Native` 搭配 `Expo` 生態系，實現跨平台（iOS/Android）開發。
@@ -262,7 +262,7 @@ contexts/                  # 全域 Context
 
 ---
 
-#### **Backend Server (Python Flask)**
+### **【Backend Server (Python Flask)】**
 
 *   **技術棧:**
     *   **框架:** `Flask` (輕量級 Python Web 框架)。
@@ -292,7 +292,7 @@ contexts/                  # 全域 Context
 
 ---
 
-#### **Database (MySQL)**
+### **【Database (MySQL)】**
 
 *   **技術棧:** `MySQL`
 *   **角色:** 專案的永久性資料倉庫，確保資料的持久化、一致性與安全性。
@@ -307,7 +307,7 @@ contexts/                  # 全域 Context
 
 ---
 
-#### **External Services (外部服務)**
+### **【External Services (外部服務)】**
 
 *   **第三方匯率 API:** `ExchangeRate-API.com`
     *   **角色:** 提供即時、準確的全球貨幣匯率數據。
